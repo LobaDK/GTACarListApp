@@ -6,17 +6,19 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { AuthProvider, useAuth } from "./context/authContext";
+import AccountModal from "./modals/AccountModal";
 
 const Drawer = createDrawerNavigator();
 
 function AppBar({ title }: { title: string }) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const [accountMenuVisible, setAccountMenuVisible] = useState(false);
+  const [accountModalVisible, setAccountModalVisible] = useState(false);
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
+    setAccountModalVisible(false);
   };
 
   return (
@@ -30,21 +32,16 @@ function AppBar({ title }: { title: string }) {
       <Text style={styles.title}>{title}</Text>
 
       {/* Right: Account Button */}
-      <TouchableOpacity onPress={() => setAccountMenuVisible(!accountMenuVisible)}>
+      <TouchableOpacity onPress={() => setAccountModalVisible(true)}>
         <Icon name="account-circle" size={28} color="#fff" />
       </TouchableOpacity>
 
-      {/* Account Menu. Should probably be a modal or view? */}
-      {accountMenuVisible && (
-        <View style={styles.accountMenu}>
-          <TouchableOpacity onPress={handleSignOut} style={{ flexDirection: "row", alignItems: "center" }}>
-            <Icon name="logout" size={20} color="#333" />
-            <View style={{ marginLeft: 8 }}>
-              <Text>Sign Out</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* Account Modal */}
+      <AccountModal
+        visible={accountModalVisible}
+        onClose={() => setAccountModalVisible(false)}
+        onSignOut={handleSignOut}
+      />
     </View>
   );
 }

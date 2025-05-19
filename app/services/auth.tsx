@@ -10,6 +10,10 @@ export const login = async (username: string, password: string): Promise<boolean
       body: JSON.stringify({ email: username, password: password }),
     });
 
+    if (response.status === 401) {
+      throw new Error('Invalid username or password');
+    }
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Login failed:', {

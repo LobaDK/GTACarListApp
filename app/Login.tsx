@@ -8,6 +8,7 @@ const LoginScreen = () => {
   const { refreshAuth } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
     try {
@@ -16,12 +17,30 @@ const LoginScreen = () => {
         await refreshAuth();
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    }
+  };
+
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+    if (error) {
+      setError(''); // Clear error when user starts typing
+    }
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (error) {
+      setError(''); // Clear error when user starts typing
     }
   };
 
   const handleRegister = () => {
-    return "Registering is currently not implemented.";
+    setError('Registration is not implemented yet.');
   };
 
   return (
@@ -30,16 +49,18 @@ const LoginScreen = () => {
         <Icon name="account-circle" size={50} color="#000" />
       </View>
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Username"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={handleUsernameChange}
           style={styles.input}
           placeholderTextColor="#000"
         />
         {username ? (
-          <TouchableOpacity onPress={() => setUsername('')} style={styles.clearIcon}>
+          <TouchableOpacity onPress={() => handleUsernameChange('')} style={styles.clearIcon}>
             <Icon name="close" size={20} color="#000" />
           </TouchableOpacity>
         ) : null}
@@ -49,13 +70,13 @@ const LoginScreen = () => {
         <TextInput
           placeholder="Password"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           style={styles.input}
           placeholderTextColor="#000"
           secureTextEntry
         />
         {password ? (
-          <TouchableOpacity onPress={() => setPassword('')} style={styles.clearIcon}>
+          <TouchableOpacity onPress={() => handlePasswordChange('')} style={styles.clearIcon}>
             <Icon name="close" size={20} color="#000" />
           </TouchableOpacity>
         ) : null}
@@ -109,6 +130,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontWeight: '600',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontWeight: 'bold',
+    fontSize: 16,
+    padding: 10,
+    borderRadius: 8,
+    textAlign: 'center',
+    width: '80%',
+    alignSelf: 'center',
   },
 });
 
